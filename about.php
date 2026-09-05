@@ -19,7 +19,7 @@ require __DIR__ . '/includes/header.php';
 <section class="section">
   <div class="container">
     <div class="page-content">
-      <?= $page['content'] ?? '' ?>
+      <?= render_page_blocks($page['content'] ?? '') ?>
     </div>
   </div>
 </section>

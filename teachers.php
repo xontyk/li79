@@ -21,7 +21,7 @@ require __DIR__ . '/includes/header.php';
 <section class="section">
   <div class="container">
     <?php if (!empty($page['content'])): ?>
-      <div class="page-content" style="margin-bottom:32px;"><?= $page['content'] ?></div>
+      <div class="page-content" style="margin-bottom:32px;"><?= render_page_blocks($page['content']) ?></div>
     <?php endif; ?>
 
     <?php if (!$teachers): ?>

@@ -206,7 +206,7 @@ p { margin: 0 0 1em; color: var(--text); }
 /* ---------- Hero ---------- */
 .hero {
   background: var(--bg);
-  padding: 56px 0 130px;
+  padding: 56px 0 40px;
 }
 .hero-inner {
   display: grid;
@@ -239,8 +239,9 @@ p { margin: 0 0 1em; color: var(--text); }
 }
 .hero-media img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Плавающая карточка со статистикой, перекрывающая нижний край hero */
-.stats-strip-wrap { margin-top: -56px; position: relative; z-index: 2; }
+/* Карточка со статистикой сразу под hero (без наложения — оно ломалось
+   при переносе текста на разных экранах, поэтому карточка в обычном потоке). */
+.stats-strip-wrap { margin-top: 40px; }
 .stats-strip {
   background: #fff;
   border-radius: var(--radius);
@@ -285,6 +286,26 @@ p { margin: 0 0 1em; color: var(--text); }
 
 .page-content { max-width: 76ch; }
 .page-content :is(h2, h3) { margin-top: 1.4em; }
+
+/* ---------- Блоки конструктора страниц (вывод на публичных страницах) ---------- */
+.block-heading { margin-top: 1.2em; }
+.block-paragraph { margin-bottom: 1em; }
+.block-paragraph p:last-child { margin-bottom: 0; }
+.block-image { margin: 1.4em 0; }
+.block-image img { border-radius: var(--radius); width: 100%; }
+.block-image figcaption { margin-top: 8px; color: var(--text-muted); font-size: 0.9rem; text-align: center; }
+.block-button { margin: 1.4em 0; }
+.block-quote {
+  margin: 1.4em 0;
+  padding: 20px 24px;
+  border-left: 4px solid var(--blue-accent);
+  background: var(--blue-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.block-quote p { font-style: italic; color: var(--navy-dark); margin-bottom: 8px; }
+.block-quote cite { font-style: normal; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
+.block-list { margin-bottom: 1.2em; padding-left: 1.4em; }
+.block-list li { margin-bottom: 6px; }
 
 /* ---------- Grids & cards ---------- */
 .grid { display: grid; gap: 24px; }
@@ -683,8 +704,7 @@ form input:focus, form textarea:focus, form select:focus {
   .gallery { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr; text-align: left; }
   .section { padding: 40px 0; }
-  .hero { padding: 44px 0 72px; }
-  .stats-strip-wrap { margin-top: -40px; }
+  .hero { padding: 36px 0 28px; }
   .stats-strip-item { flex: 1 1 50%; }
   .event-card { padding: 24px; }
   .event-poster::before { display: none; }

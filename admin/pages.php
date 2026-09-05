@@ -46,8 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] = 'Страница с таким адресом (slug) уже существует. Выберите другой адрес.';
             } else {
                 $maxOrder = (int) $pdo->query('SELECT COALESCE(MAX(nav_order), 0) FROM pages')->fetchColumn();
+                $initialContent = sanitize_page_blocks([
+                    ['type' => 'paragraph', 'html' => '<p>Новая страница. Отредактируйте текст и добавьте блоки ниже.</p>'],
+                ]);
                 $stmt = $pdo->prepare('INSERT INTO pages (slug, title, content, nav_order) VALUES (?, ?, ?, ?)');
-                $stmt->execute([$slug, $newTitle, '<p>Новая страница. Отредактируйте текст.</p>', $maxOrder + 10]);
+                $stmt->execute([$slug, $newTitle, $initialContent, $maxOrder + 10]);
                 set_flash('success', 'Страница создана. Теперь можно наполнить её содержимым.');
                 redirect('pages.php');
             }

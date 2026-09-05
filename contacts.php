@@ -43,7 +43,7 @@ require __DIR__ . '/includes/header.php';
     <div class="grid grid-2">
       <div>
         <div class="page-content">
-          <?= $page['content'] ?? '' ?>
+          <?= render_page_blocks($page['content'] ?? '') ?>
         </div>
         <p><strong>Адрес:</strong> <?= e(SITE_ADDRESS) ?></p>
         <p><strong>Телефон:</strong> <a href="tel:<?= e(preg_replace('/[^0-9+]/', '', SITE_PHONE)) ?>"><?= e(SITE_PHONE) ?></a></p>

@@ -196,3 +196,238 @@ function delete_uploaded_file(?string $relativePath): void
         @unlink($fullPath);
     }
 }
+
+/* =========================================================================
+ * Конструктор страниц из блоков (замена одного большого поля с HTML).
+ * Содержимое страницы (pages.content) хранится как JSON-массив блоков,
+ * например: [{"type":"heading","text":"...","level":2}, {"type":"image",...}].
+ * Если в content лежит НЕ валидный JSON-массив — это старый формат (просто
+ * HTML-строка из предыдущей версии сайта), и он выводится как есть, без
+ * изменений, чтобы ничего не потерять при обновлении сайта.
+ * ========================================================================= */
+
+/** true, если массив — обычный список (ключи 0,1,2,...), а не ассоциативный. */
+function is_list_array(array $arr): bool
+{
+    return array_keys($arr) === range(0, count($arr) - 1);
+}
+
+/**
+ * Разбирает content страницы в массив блоков для конструктора в админке.
+ * Старый HTML (не JSON-список) оборачивается в один блок типа legacy_html,
+ * чтобы администратор видел и мог отредактировать существующий текст.
+ */
+function decode_page_blocks(?string $content): array
+{
+    $content = $content ?? '';
+
+    if (trim($content) === '') {
+        return [];
+    }
+
+    $decoded = json_decode($content, true);
+
+    if (is_array($decoded) && json_last_error() === JSON_ERROR_NONE && is_list_array($decoded)) {
+        return $decoded;
+    }
+
+    return [['type' => 'legacy_html', 'html' => $content]];
+}
+
+/**
+ * Проверяет и очищает блоки, присланные из формы редактора, перед сохранением в БД.
+ * Возвращает JSON-строку для колонки pages.content.
+ */
+function sanitize_page_blocks(array $blocks): string
+{
+    $clean = [];
+
+    foreach ($blocks as $block) {
+        if (!is_array($block) || empty($block['type'])) {
+            continue;
+        }
+
+        switch ($block['type']) {
+            case 'heading':
+                $clean[] = [
+                    'type' => 'heading',
+                    'level' => ((int) ($block['level'] ?? 2)) === 3 ? 3 : 2,
+                    'text' => trim((string) ($block['text'] ?? '')),
+                ];
+                break;
+
+            case 'paragraph':
+                $html = (string) ($block['html'] ?? '');
+                if (trim(strip_tags($html)) === '' && strpos($html, '<img') === false) {
+                    break;
+                }
+                $clean[] = ['type' => 'paragraph', 'html' => $html];
+                break;
+
+            case 'image':
+                $url = trim((string) ($block['url'] ?? ''));
+                if ($url === '') {
+                    break;
+                }
+                $clean[] = [
+                    'type' => 'image',
+                    'url' => $url,
+                    'alt' => trim((string) ($block['alt'] ?? '')),
+                    'caption' => trim((string) ($block['caption'] ?? '')),
+                ];
+                break;
+
+            case 'button':
+                $text = trim((string) ($block['text'] ?? ''));
+                $url = trim((string) ($block['url'] ?? ''));
+                if ($text === '' || $url === '' || stripos($url, 'javascript:') === 0) {
+                    break;
+                }
+                $clean[] = [
+                    'type' => 'button',
+                    'text' => $text,
+                    'url' => $url,
+                    'style' => ($block['style'] ?? '') === 'outline' ? 'outline' : 'primary',
+                ];
+                break;
+
+            case 'quote':
+                $text = trim((string) ($block['text'] ?? ''));
+                if ($text === '') {
+                    break;
+                }
+                $clean[] = [
+                    'type' => 'quote',
+                    'text' => $text,
+                    'author' => trim((string) ($block['author'] ?? '')),
+                ];
+                break;
+
+            case 'list':
+                $items = [];
+                foreach ((array) ($block['items'] ?? []) as $item) {
+                    $item = trim((string) $item);
+                    if ($item !== '') {
+                        $items[] = $item;
+                    }
+                }
+                if (!$items) {
+                    break;
+                }
+                $clean[] = [
+                    'type' => 'list',
+                    'style' => ($block['style'] ?? '') === 'numbered' ? 'numbered' : 'bullet',
+                    'items' => $items,
+                ];
+                break;
+
+            case 'legacy_html':
+                $html = (string) ($block['html'] ?? '');
+                if (trim($html) === '') {
+                    break;
+                }
+                $clean[] = ['type' => 'legacy_html', 'html' => $html];
+                break;
+        }
+    }
+
+    return json_encode($clean, JSON_UNESCAPED_UNICODE);
+}
+
+/** Рендерит блоки страницы в готовый HTML для публичного сайта. */
+function render_page_blocks(?string $content): string
+{
+    $content = $content ?? '';
+
+    if (trim($content) === '') {
+        return '';
+    }
+
+    $decoded = json_decode($content, true);
+
+    if (!is_array($decoded) || json_last_error() !== JSON_ERROR_NONE || !is_list_array($decoded)) {
+        // Старый формат — контент это уже готовый HTML.
+        return $content;
+    }
+
+    $html = '';
+
+    foreach ($decoded as $block) {
+        if (!is_array($block) || empty($block['type'])) {
+            continue;
+        }
+
+        switch ($block['type']) {
+            case 'heading':
+                $level = ((int) ($block['level'] ?? 2)) === 3 ? 3 : 2;
+                $text = e($block['text'] ?? '');
+                if ($text === '') {
+                    break;
+                }
+                $html .= "<h{$level} class=\"block-heading\">{$text}</h{$level}>";
+                break;
+
+            case 'paragraph':
+                $blockHtml = $block['html'] ?? '';
+                if (trim((string) $blockHtml) === '') {
+                    break;
+                }
+                $html .= '<div class="block-paragraph">' . $blockHtml . '</div>';
+                break;
+
+            case 'image':
+                $url = $block['url'] ?? '';
+                if ($url === '') {
+                    break;
+                }
+                $alt = e($block['alt'] ?? '');
+                $html .= '<figure class="block-image"><img src="' . e($url) . '" alt="' . $alt . '" loading="lazy">';
+                if (!empty($block['caption'])) {
+                    $html .= '<figcaption>' . e($block['caption']) . '</figcaption>';
+                }
+                $html .= '</figure>';
+                break;
+
+            case 'button':
+                $text = e($block['text'] ?? '');
+                $url = $block['url'] ?? '#';
+                if ($text === '' || stripos(trim((string) $url), 'javascript:') === 0) {
+                    break;
+                }
+                $style = ($block['style'] ?? '') === 'outline' ? 'btn-outline' : 'btn-primary';
+                $html .= '<p class="block-button"><a class="btn ' . $style . '" href="' . e($url) . '">' . $text . '</a></p>';
+                break;
+
+            case 'quote':
+                $text = e($block['text'] ?? '');
+                if ($text === '') {
+                    break;
+                }
+                $html .= '<blockquote class="block-quote"><p>' . $text . '</p>';
+                if (!empty($block['author'])) {
+                    $html .= '<cite>' . e($block['author']) . '</cite>';
+                }
+                $html .= '</blockquote>';
+                break;
+
+            case 'list':
+                $items = is_array($block['items'] ?? null) ? $block['items'] : [];
+                if (!$items) {
+                    break;
+                }
+                $tag = ($block['style'] ?? '') === 'numbered' ? 'ol' : 'ul';
+                $html .= "<{$tag} class=\"block-list\">";
+                foreach ($items as $item) {
+                    $html .= '<li>' . e((string) $item) . '</li>';
+                }
+                $html .= "</{$tag}>";
+                break;
+
+            case 'legacy_html':
+                $html .= $block['html'] ?? '';
+                break;
+        }
+    }
+
+    return $html;
+}

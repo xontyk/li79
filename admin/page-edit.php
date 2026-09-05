@@ -13,26 +13,35 @@ if (!$page) {
 }
 
 $title = $page['title'];
-$content = $page['content'];
 $metaDescription = $page['meta_description'] ?? '';
+$blocks = decode_page_blocks($page['content']);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     check_csrf();
     $title = trim($_POST['title'] ?? '');
-    $content = $_POST['content'] ?? '';
     $metaDescription = trim($_POST['meta_description'] ?? '');
+    $blocksJson = $_POST['blocks_json'] ?? '[]';
+    $decodedBlocks = json_decode($blocksJson, true);
 
     if ($title === '') {
         $errors[] = 'Укажите название страницы.';
     }
 
+    if (!is_array($decodedBlocks)) {
+        $decodedBlocks = [];
+    }
+
     if (!$errors) {
+        $contentJson = sanitize_page_blocks($decodedBlocks);
         $stmt = $pdo->prepare('UPDATE pages SET title = ?, content = ?, meta_description = ? WHERE id = ?');
-        $stmt->execute([$title, $content, $metaDescription !== '' ? $metaDescription : null, $page['id']]);
+        $stmt->execute([$title, $contentJson, $metaDescription !== '' ? $metaDescription : null, $page['id']]);
         set_flash('success', 'Страница сохранена.');
         redirect('pages.php');
     }
+
+    // При ошибке показываем то, что администратор ввёл, а не то, что было в БД.
+    $blocks = is_array($decodedBlocks) ? $decodedBlocks : [];
 }
 
 $pageTitle = 'Редактирование страницы — ' . SITE_NAME;
@@ -41,7 +50,7 @@ require __DIR__ . '/../includes/admin_header.php';
 ?>
 <h1>Редактирование страницы «<?= e($page['title']) ?>»</h1>
 
-<div class="admin-form-card" style="max-width:860px;">
+<div class="admin-form-card admin-form-card-wide">
   <?php foreach ($errors as $error): ?>
     <p class="alert alert-error"><?= e($error) ?></p>
   <?php endforeach; ?>
@@ -54,10 +63,26 @@ require __DIR__ . '/../includes/admin_header.php';
     <label>Описание для поисковых систем (meta description)
       <input type="text" name="meta_description" value="<?= e($metaDescription) ?>">
     </label>
+
     <label>Содержимое страницы</label>
-    <div id="pageEditor" class="page-editor"><?= $content ?? '' ?></div>
-    <textarea name="content" id="contentField" hidden><?= e($content) ?></textarea>
-    <p class="form-hint">Форматируйте текст кнопками на панели, кнопка с картинкой — загрузить фото прямо в текст страницы (автоматически сожмётся до 720px, как и фото учителей).</p>
+    <p class="form-hint" style="margin-top:-4px;">Страница собирается из блоков — как в конструкторе сайтов: добавляйте, перетаскивайте порядок стрелками, удаляйте. Каждый блок редактируется прямо здесь.</p>
+
+    <div class="block-editor" id="blockEditor">
+      <div class="block-list" id="blockList"></div>
+      <div class="block-add">
+        <span class="block-add-label">Добавить блок:</span>
+        <div class="block-add-buttons">
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="heading">🔠 Заголовок</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="paragraph">📝 Текст</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="image">🖼 Фото</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="button">🔘 Кнопка</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="quote">❝ Цитата</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="list">📋 Список</button>
+        </div>
+      </div>
+    </div>
+    <input type="hidden" name="blocks_json" id="blocksJsonField">
+
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">Сохранить</button>
       <a href="pages.php" class="btn btn-outline">Отмена</a>
@@ -66,11 +91,9 @@ require __DIR__ . '/../includes/admin_header.php';
   </form>
 </div>
 
+<script>window.PAGE_EDITOR_CSRF = <?= json_encode(csrf_token()) ?>;</script>
+<script>window.INITIAL_BLOCKS = <?= json_encode($blocks, JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="/js/vendor/quill/quill.min.js"></script>
-<script>
-  window.PAGE_EDITOR_CSRF = <?= json_encode(csrf_token()) ?>;
-  window.PAGE_EDITOR_UPLOAD_URL = 'upload-image.php';
-</script>
-<script src="/js/page-editor.js"></script>
+<script src="/js/page-blocks-editor.js"></script>
 
 <?php require __DIR__ . '/../includes/admin_footer.php'; ?>
