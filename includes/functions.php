@@ -321,6 +321,28 @@ function sanitize_page_blocks(array $blocks): string
                 ];
                 break;
 
+            case 'cover':
+                $imageUrl = trim((string) ($block['imageUrl'] ?? ''));
+                $heading = trim((string) ($block['heading'] ?? ''));
+                if ($imageUrl === '' && $heading === '') {
+                    break;
+                }
+                $buttonText = trim((string) ($block['buttonText'] ?? ''));
+                $buttonUrl = trim((string) ($block['buttonUrl'] ?? ''));
+                if (stripos($buttonUrl, 'javascript:') === 0) {
+                    $buttonUrl = '';
+                }
+                $clean[] = [
+                    'type' => 'cover',
+                    'imageUrl' => $imageUrl,
+                    'overlay' => in_array($block['overlay'] ?? '', ['dark', 'light', 'none'], true) ? $block['overlay'] : 'dark',
+                    'heading' => $heading,
+                    'subtext' => trim((string) ($block['subtext'] ?? '')),
+                    'buttonText' => ($buttonText !== '' && $buttonUrl !== '') ? $buttonText : '',
+                    'buttonUrl' => ($buttonText !== '' && $buttonUrl !== '') ? $buttonUrl : '',
+                ];
+                break;
+
             case 'legacy_html':
                 $html = (string) ($block['html'] ?? '');
                 if (trim($html) === '') {
@@ -421,6 +443,26 @@ function render_page_blocks(?string $content): string
                     $html .= '<li>' . e((string) $item) . '</li>';
                 }
                 $html .= "</{$tag}>";
+                break;
+
+            case 'cover':
+                $heading = e($block['heading'] ?? '');
+                $subtext = e($block['subtext'] ?? '');
+                $imageUrl = $block['imageUrl'] ?? '';
+                $overlay = in_array($block['overlay'] ?? '', ['dark', 'light', 'none'], true) ? $block['overlay'] : 'dark';
+                $bgStyle = $imageUrl !== '' ? ' style="background-image:url(\'' . e($imageUrl) . '\')"' : '';
+                $html .= '<div class="block-cover block-cover-overlay-' . $overlay . '"' . $bgStyle . '>';
+                $html .= '<div class="block-cover-inner">';
+                if ($heading !== '') {
+                    $html .= '<h2>' . $heading . '</h2>';
+                }
+                if ($subtext !== '') {
+                    $html .= '<p>' . $subtext . '</p>';
+                }
+                if (!empty($block['buttonText']) && !empty($block['buttonUrl'])) {
+                    $html .= '<a class="btn btn-primary" href="' . e($block['buttonUrl']) . '">' . e($block['buttonText']) . '</a>';
+                }
+                $html .= '</div></div>';
                 break;
 
             case 'legacy_html':

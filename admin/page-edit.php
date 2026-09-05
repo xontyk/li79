@@ -75,6 +75,7 @@ require __DIR__ . '/../includes/admin_header.php';
           <button type="button" class="btn btn-sm btn-outline" data-add-block="heading">🔠 Заголовок</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="paragraph">📝 Текст</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="image">🖼 Фото</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="cover">🌄 Баннер с фоном</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="button">🔘 Кнопка</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="quote">❝ Цитата</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="list">📋 Список</button>
@@ -85,11 +86,18 @@ require __DIR__ . '/../includes/admin_header.php';
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">Сохранить</button>
+      <button type="button" class="btn btn-outline" id="previewPageBtn">👁 Предпросмотр</button>
       <a href="pages.php" class="btn btn-outline">Отмена</a>
       <a href="<?= e(page_url($page['slug'])) ?>" class="btn btn-outline" target="_blank" rel="noopener">Смотреть на сайте</a>
     </div>
   </form>
 </div>
+
+<form method="post" action="preview.php" target="_blank" id="previewForm" hidden>
+  <?= csrf_field() ?>
+  <input type="hidden" name="title" id="previewTitleField">
+  <input type="hidden" name="blocks_json" id="previewBlocksField">
+</form>
 
 <script>window.PAGE_EDITOR_CSRF = <?= json_encode(csrf_token()) ?>;</script>
 <script>window.INITIAL_BLOCKS = <?= json_encode($blocks, JSON_UNESCAPED_UNICODE) ?>;</script>

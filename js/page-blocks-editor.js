@@ -13,6 +13,7 @@
     heading: '🔠 Заголовок',
     paragraph: '📝 Текст',
     image: '🖼 Фото',
+    cover: '🌄 Баннер с фоном',
     button: '🔘 Кнопка',
     quote: '❝ Цитата',
     list: '📋 Список',
@@ -23,6 +24,7 @@
     heading: { type: 'heading', level: 2, text: '' },
     paragraph: { type: 'paragraph', html: '' },
     image: { type: 'image', url: '', alt: '', caption: '' },
+    cover: { type: 'cover', imageUrl: '', overlay: 'dark', heading: '', subtext: '', buttonText: '', buttonUrl: '' },
     button: { type: 'button', text: 'Подробнее', url: '', style: 'primary' },
     quote: { type: 'quote', text: '', author: '' },
     list: { type: 'list', style: 'bullet', items: [''] }
@@ -167,6 +169,7 @@
       case 'heading': wrap.appendChild(buildHeading(block)); break;
       case 'paragraph': wrap.appendChild(buildParagraph(block)); break;
       case 'image': wrap.appendChild(buildImage(block)); break;
+      case 'cover': wrap.appendChild(buildCover(block)); break;
       case 'button': wrap.appendChild(buildButton(block)); break;
       case 'quote': wrap.appendChild(buildQuote(block)); break;
       case 'list': wrap.appendChild(buildList(block)); break;
@@ -207,8 +210,12 @@
     return wrap;
   }
 
-  function buildImage(block) {
-    var wrap = el('div');
+  /**
+   * Универсальная зона загрузки фото (клик + drag-and-drop), общая для
+   * обычного блока "Фото" и фона в блоке "Баннер с фоном".
+   * onUploaded(url) вызывается после успешной загрузки на сервер.
+   */
+  function createImageUploader(currentUrl, onUploaded, placeholderText) {
     var dropzone = el('div', 'photo-dropzone block-image-dropzone');
     var input = document.createElement('input');
     input.type = 'file';
@@ -216,15 +223,14 @@
     input.hidden = true;
 
     var preview = el('div', 'photo-dropzone-preview');
-    preview.innerHTML = block.url
-      ? '<img src="' + block.url + '" alt="">'
-      : '<div class="photo-dropzone-placeholder"><span>🖼</span><span>Перетащите фото сюда<br>или нажмите, чтобы выбрать файл</span></div>';
+    preview.innerHTML = currentUrl
+      ? '<img src="' + currentUrl + '" alt="">'
+      : '<div class="photo-dropzone-placeholder"><span>🖼</span><span>' + placeholderText + '</span></div>';
 
     dropzone.appendChild(input);
     dropzone.appendChild(preview);
 
-    var openPicker = function () { input.click(); };
-    dropzone.addEventListener('click', openPicker);
+    dropzone.addEventListener('click', function () { input.click(); });
 
     ['dragover', 'dragenter'].forEach(function (evt) {
       dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.add('is-dragover'); });
@@ -245,7 +251,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data && data.url) {
-            block.url = data.url;
+            onUploaded(data.url);
             preview.innerHTML = '<img src="' + data.url + '" alt="">';
           } else {
             alert((data && data.error) || 'Не удалось загрузить изображение.');
@@ -270,10 +276,46 @@
       if (file) uploadFile(file);
     });
 
+    return dropzone;
+  }
+
+  function buildImage(block) {
+    var wrap = el('div');
+    var dropzone = createImageUploader(
+      block.url,
+      function (url) { block.url = url; },
+      'Перетащите фото сюда<br>или нажмите, чтобы выбрать файл'
+    );
+
     wrap.appendChild(el('label', 'block-field', 'Фото'));
     wrap.appendChild(dropzone);
     wrap.appendChild(field('Подпись под фото (необязательно)', textInput(block.caption, function (v) { block.caption = v; })));
     wrap.appendChild(field('Alt-текст для доступности и SEO', textInput(block.alt, function (v) { block.alt = v; }, 'Например: Ученики лицея на олимпиаде')));
+
+    return wrap;
+  }
+
+  function buildCover(block) {
+    var wrap = el('div');
+    var dropzone = createImageUploader(
+      block.imageUrl,
+      function (url) { block.imageUrl = url; },
+      'Перетащите фоновую картинку сюда<br>или нажмите, чтобы выбрать файл'
+    );
+
+    wrap.appendChild(el('label', 'block-field', 'Фоновая картинка'));
+    wrap.appendChild(dropzone);
+    wrap.appendChild(field('Затемнение фона', selectInput([
+      { value: 'dark', label: 'Тёмное (текст будет белым)' },
+      { value: 'light', label: 'Светлое (текст будет тёмным)' },
+      { value: 'none', label: 'Без затемнения' }
+    ], block.overlay || 'dark', function (v) { block.overlay = v; })));
+    wrap.appendChild(field('Заголовок', textInput(block.heading, function (v) { block.heading = v; }, 'Например: День открытых дверей')));
+    wrap.appendChild(field('Подпись под заголовком', textArea(block.subtext, function (v) { block.subtext = v; }, 2)));
+    var rowWrap = el('div', 'block-fields-row');
+    rowWrap.appendChild(field('Текст кнопки (необязательно)', textInput(block.buttonText, function (v) { block.buttonText = v; })));
+    rowWrap.appendChild(field('Ссылка кнопки', textInput(block.buttonUrl, function (v) { block.buttonUrl = v; }, '/admission.php')));
+    wrap.appendChild(rowWrap);
 
     return wrap;
   }
@@ -355,6 +397,23 @@
       if (lastCard) lastCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   });
+
+  // Кнопка «Предпросмотр»: открывает страницу в новой вкладке в том виде,
+  // как она будет выглядеть на сайте — без сохранения текущей формы.
+  var previewBtn = document.getElementById('previewPageBtn');
+  var previewForm = document.getElementById('previewForm');
+  var previewTitleField = document.getElementById('previewTitleField');
+  var previewBlocksField = document.getElementById('previewBlocksField');
+  var titleField = form.querySelector('[name="title"]');
+
+  if (previewBtn && previewForm && previewTitleField && previewBlocksField && titleField) {
+    previewBtn.addEventListener('click', function () {
+      syncJsonField();
+      previewTitleField.value = titleField.value;
+      previewBlocksField.value = jsonField.value;
+      previewForm.submit();
+    });
+  }
 
   render();
 })();
