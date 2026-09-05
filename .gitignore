@@ -1,0 +1,21 @@
+# Локальные настройки окружения
+.env
+
+# Загруженные пользователями файлы (фото учителей и т.д.) — не храним в репозитории
+/uploads/*
+!/uploads/.htaccess
+!/uploads/teachers
+!/uploads/pages
+/uploads/teachers/*
+!/uploads/teachers/.gitkeep
+/uploads/pages/*
+!/uploads/pages/.gitkeep
+
+# Системные и IDE-файлы
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Логи
+*.log

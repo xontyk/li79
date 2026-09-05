@@ -1,0 +1,23 @@
+# Папка с загруженными пользователями файлами (фото учителей и т.д.).
+# Запрещаем выполнение любых скриптов внутри неё — даже если через форму
+# загрузки каким-то образом попадёт исполняемый файл, сервер отдаст его
+# только как статический файл, а не выполнит.
+
+<FilesMatch "\.(php|php3|php4|php5|phtml|phar|pl|py|cgi|sh|asp|aspx)$">
+    Require all denied
+</FilesMatch>
+
+# Для старых версий Apache (mod_access вместо mod_authz_core)
+<IfModule !mod_authz_core.c>
+    <FilesMatch "\.(php|php3|php4|php5|phtml|phar|pl|py|cgi|sh|asp|aspx)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Если сервер использует mod_php как обработчик по расширению
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+Options -Indexes -ExecCGI
