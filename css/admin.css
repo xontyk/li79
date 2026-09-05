@@ -83,6 +83,23 @@
 .form-actions { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 .form-hint { color: var(--text-muted); font-size: 0.82rem; margin-top: -10px; margin-bottom: 16px; }
 
+.page-editor { margin: 6px 0 6px; font-family: inherit; }
+.page-editor .ql-toolbar.ql-snow {
+  border-color: var(--border);
+  border-top-left-radius: var(--radius-sm);
+  border-top-right-radius: var(--radius-sm);
+  background: var(--bg-soft);
+}
+.page-editor .ql-container.ql-snow {
+  border-color: var(--border);
+  border-bottom-left-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 1rem;
+}
+.page-editor .ql-editor { min-height: 260px; }
+.page-editor .ql-editor img { max-width: 100%; border-radius: 8px; }
+
 .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
 .dashboard-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 24px; display: flex; flex-direction: column; gap: 8px; }
 .dashboard-card .count { font-size: 2rem; font-weight: 700; color: var(--navy); }

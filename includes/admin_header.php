@@ -23,6 +23,9 @@ $navItems = [
 <title><?= e($pageTitle ?? 'Админ-панель — ' . SITE_NAME) ?></title>
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/css/admin.css">
+<?php foreach ($adminExtraCss ?? [] as $cssHref): ?>
+<link rel="stylesheet" href="<?= e($cssHref) ?>">
+<?php endforeach; ?>
 </head>
 <body class="admin-body">
 <div class="admin-shell">
