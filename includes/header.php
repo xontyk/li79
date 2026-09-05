@@ -40,8 +40,9 @@ $navPages = get_nav_pages($pdo);
           <li><a href="<?= e($href) ?>"<?= $isActive ? ' class="active" aria-current="page"' : '' ?>><?= e($navPage['title']) ?></a></li>
         <?php endforeach; ?>
       </ul>
-      <a href="/admin/login.php" class="btn btn-outline nav-admin-btn">Войти как администратор</a>
+      <a href="/admin/login.php" class="admin-link">Вход для сотрудников</a>
     </nav>
+    <a href="/admission.php" class="btn btn-primary nav-cta">Записаться на собеседование</a>
   </div>
 </header>
 <main id="main">

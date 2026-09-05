@@ -78,10 +78,41 @@
 .inline-form { display: inline-flex; gap: 8px; }
 
 .admin-form-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 28px; max-width: 640px; }
-.admin-form-card .current-photo { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-.admin-form-card .current-photo img { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; }
 .form-actions { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 .form-hint { color: var(--text-muted); font-size: 0.82rem; margin-top: -10px; margin-bottom: 16px; }
+
+/* ---------- Загрузка фото: drag-and-drop зона ---------- */
+.photo-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease;
+  margin-top: 6px;
+}
+.photo-dropzone:hover { border-color: var(--blue-accent); }
+.photo-dropzone.is-dragover { border-color: var(--blue-accent); background: var(--blue-light); }
+.photo-dropzone-preview {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.photo-dropzone-preview img { width: 100%; max-height: 320px; object-fit: cover; }
+.photo-dropzone-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 36px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.photo-dropzone-placeholder svg { color: var(--blue-accent); }
+.photo-dropzone-actions { display: flex; gap: 10px; margin: 12px 0 4px; flex-wrap: wrap; }
 
 .page-editor { margin: 6px 0 6px; font-family: inherit; }
 .page-editor .ql-toolbar.ql-snow {
