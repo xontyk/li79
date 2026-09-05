@@ -24,15 +24,4 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<section class="section section-soft">
-  <div class="container">
-    <div class="grid grid-4">
-      <div class="card stat-card"><div class="stat-number">2003</div><div class="stat-label">год основания</div></div>
-      <div class="card stat-card"><div class="stat-number">20+</div><div class="stat-label">лет работы</div></div>
-      <div class="card stat-card"><div class="stat-number">40+</div><div class="stat-label">наград и дипломов</div></div>
-      <div class="card stat-card"><div class="stat-number">95%</div><div class="stat-label">поступают в вузы</div></div>
-    </div>
-  </div>
-</section>
-
 <?php require __DIR__ . '/includes/footer.php'; ?>

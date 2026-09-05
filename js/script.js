@@ -41,22 +41,6 @@
     });
   }
 
-  // Кнопки-стрелки прокрутки галереи "Жизнь лицея" на главной странице.
-  document.querySelectorAll('.carousel-nav').forEach(function (nav) {
-    var scroller = nav.closest('.section-header-row') && nav.closest('.section-header-row').parentElement
-      ? nav.closest('.section-header-row').parentElement.querySelector('.gallery-scroll')
-      : null;
-    if (!scroller) {
-      return;
-    }
-    nav.querySelectorAll('.carousel-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var dir = parseInt(btn.getAttribute('data-dir'), 10) || 1;
-        scroller.scrollBy({ left: dir * 280, behavior: 'smooth' });
-      });
-    });
-  });
-
   // Проверка обязательных полей формы обратной связи перед отправкой.
   var contactForm = document.getElementById('contactForm');
   if (contactForm) {

@@ -24,18 +24,4 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<section class="section section-soft">
-  <div class="container">
-    <div class="section-header">
-      <span class="eyebrow">Профили обучения</span>
-      <h2>Углублённое изучение профильных предметов</h2>
-    </div>
-    <div class="grid grid-3">
-      <div class="card feature-card"><h3>Математика и информатика</h3><p>Подготовка к олимпиадам и профильному ЕГЭ, программирование, алгоритмы.</p></div>
-      <div class="card feature-card"><h3>Физико-математический</h3><p>Углублённая физика и математика для будущих инженеров.</p></div>
-      <div class="card feature-card"><h3>Гуманитарный</h3><p>Русский язык, литература, история и обществознание на профильном уровне.</p></div>
-    </div>
-  </div>
-</section>
-
 <?php require __DIR__ . '/includes/footer.php'; ?>

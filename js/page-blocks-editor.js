@@ -14,6 +14,9 @@
     paragraph: '📝 Текст',
     image: '🖼 Фото',
     cover: '🌄 Баннер с фоном',
+    gallery: '🖼️ Галерея фото',
+    cards: '🗂 Карточки',
+    stats: '📊 Статистика',
     button: '🔘 Кнопка',
     quote: '❝ Цитата',
     list: '📋 Список',
@@ -25,6 +28,9 @@
     paragraph: { type: 'paragraph', html: '' },
     image: { type: 'image', url: '', alt: '', caption: '' },
     cover: { type: 'cover', imageUrl: '', overlay: 'dark', heading: '', subtext: '', buttonText: '', buttonUrl: '' },
+    gallery: { type: 'gallery', columns: 3, items: [{ url: '', caption: '' }] },
+    cards: { type: 'cards', columns: 4, items: [{ icon: '', title: '', text: '' }] },
+    stats: { type: 'stats', items: [{ icon: '', number: '', dynamic: '', label: '' }] },
     button: { type: 'button', text: 'Подробнее', url: '', style: 'primary' },
     quote: { type: 'quote', text: '', author: '' },
     list: { type: 'list', style: 'bullet', items: [''] }
@@ -170,6 +176,9 @@
       case 'paragraph': wrap.appendChild(buildParagraph(block)); break;
       case 'image': wrap.appendChild(buildImage(block)); break;
       case 'cover': wrap.appendChild(buildCover(block)); break;
+      case 'gallery': wrap.appendChild(buildGallery(block)); break;
+      case 'cards': wrap.appendChild(buildCards(block)); break;
+      case 'stats': wrap.appendChild(buildStats(block)); break;
       case 'button': wrap.appendChild(buildButton(block)); break;
       case 'quote': wrap.appendChild(buildQuote(block)); break;
       case 'list': wrap.appendChild(buildList(block)); break;
@@ -316,6 +325,140 @@
     rowWrap.appendChild(field('Текст кнопки (необязательно)', textInput(block.buttonText, function (v) { block.buttonText = v; })));
     rowWrap.appendChild(field('Ссылка кнопки', textInput(block.buttonUrl, function (v) { block.buttonUrl = v; }, '/admission.php')));
     wrap.appendChild(rowWrap);
+
+    return wrap;
+  }
+
+  function buildGallery(block) {
+    var wrap = el('div');
+    if (!Array.isArray(block.items) || !block.items.length) {
+      block.items = [{ url: '', caption: '' }];
+    }
+
+    wrap.appendChild(field('Колонок в ряд', selectInput([
+      { value: '2', label: '2' },
+      { value: '3', label: '3' },
+      { value: '4', label: '4' }
+    ], String(block.columns || 3), function (v) { block.columns = parseInt(v, 10); })));
+
+    var itemsWrap = el('div', 'block-repeat-items');
+    block.items.forEach(function (item, i) {
+      var row = el('div', 'block-repeat-item');
+      var dropzone = createImageUploader(
+        item.url,
+        function (url) { item.url = url; },
+        'Нажмите или перетащите фото'
+      );
+      row.appendChild(dropzone);
+      row.appendChild(field('Подпись (необязательно)', textInput(item.caption, function (v) { item.caption = v; })));
+
+      var removeBtn = el('button', 'btn btn-sm btn-outline', '✕ Убрать это фото');
+      removeBtn.type = 'button';
+      removeBtn.addEventListener('click', function () {
+        block.items.splice(i, 1);
+        render();
+      });
+      row.appendChild(removeBtn);
+      itemsWrap.appendChild(row);
+    });
+    wrap.appendChild(itemsWrap);
+
+    var addBtn = el('button', 'btn btn-sm btn-outline', '+ Добавить фото в галерею');
+    addBtn.type = 'button';
+    addBtn.addEventListener('click', function () {
+      block.items.push({ url: '', caption: '' });
+      render();
+    });
+    wrap.appendChild(addBtn);
+
+    return wrap;
+  }
+
+  function buildCards(block) {
+    var wrap = el('div');
+    if (!Array.isArray(block.items) || !block.items.length) {
+      block.items = [{ icon: '', title: '', text: '' }];
+    }
+
+    wrap.appendChild(field('Колонок в ряд', selectInput([
+      { value: '2', label: '2' },
+      { value: '3', label: '3' },
+      { value: '4', label: '4' }
+    ], String(block.columns || 4), function (v) { block.columns = parseInt(v, 10); })));
+
+    var itemsWrap = el('div', 'block-repeat-items');
+    block.items.forEach(function (item, i) {
+      var row = el('div', 'block-repeat-item');
+      var fieldsRow = el('div', 'block-fields-row');
+      fieldsRow.appendChild(field('Иконка (эмодзи, необязательно)', textInput(item.icon, function (v) { item.icon = v; }, '🏆')));
+      fieldsRow.appendChild(field('Заголовок карточки', textInput(item.title, function (v) { item.title = v; })));
+      row.appendChild(fieldsRow);
+      row.appendChild(field('Текст', textArea(item.text, function (v) { item.text = v; }, 2)));
+
+      var removeBtn = el('button', 'btn btn-sm btn-outline', '✕ Удалить карточку');
+      removeBtn.type = 'button';
+      removeBtn.addEventListener('click', function () {
+        block.items.splice(i, 1);
+        render();
+      });
+      row.appendChild(removeBtn);
+      itemsWrap.appendChild(row);
+    });
+    wrap.appendChild(itemsWrap);
+
+    var addBtn = el('button', 'btn btn-sm btn-outline', '+ Добавить карточку');
+    addBtn.type = 'button';
+    addBtn.addEventListener('click', function () {
+      block.items.push({ icon: '', title: '', text: '' });
+      render();
+    });
+    wrap.appendChild(addBtn);
+
+    return wrap;
+  }
+
+  function buildStats(block) {
+    var wrap = el('div');
+    wrap.appendChild(el('p', 'form-hint', 'Если выбрать «Считать автоматически», число будет обновляться само по количеству записей на сайте — вручную вводить его не нужно.'));
+
+    if (!Array.isArray(block.items) || !block.items.length) {
+      block.items = [{ icon: '', number: '', dynamic: '', label: '' }];
+    }
+
+    var itemsWrap = el('div', 'block-repeat-items');
+    block.items.forEach(function (item, i) {
+      var row = el('div', 'block-repeat-item');
+      var fieldsRow = el('div', 'block-fields-row');
+      fieldsRow.appendChild(field('Иконка (эмодзи)', textInput(item.icon, function (v) { item.icon = v; }, '🏆')));
+      fieldsRow.appendChild(field('Число показывать', selectInput([
+        { value: '', label: 'Задать вручную' },
+        { value: 'teachers_count', label: 'Считать автоматически: учителя' },
+        { value: 'winners_count', label: 'Считать автоматически: олимпиадники' }
+      ], item.dynamic || '', function (v) { item.dynamic = v; })));
+      row.appendChild(fieldsRow);
+      var fieldsRow2 = el('div', 'block-fields-row');
+      fieldsRow2.appendChild(field('Число (если не автоматически)', textInput(item.number, function (v) { item.number = v; }, '95%')));
+      fieldsRow2.appendChild(field('Подпись', textInput(item.label, function (v) { item.label = v; }, 'лет работы лицея')));
+      row.appendChild(fieldsRow2);
+
+      var removeBtn = el('button', 'btn btn-sm btn-outline', '✕ Удалить показатель');
+      removeBtn.type = 'button';
+      removeBtn.addEventListener('click', function () {
+        block.items.splice(i, 1);
+        render();
+      });
+      row.appendChild(removeBtn);
+      itemsWrap.appendChild(row);
+    });
+    wrap.appendChild(itemsWrap);
+
+    var addBtn = el('button', 'btn btn-sm btn-outline', '+ Добавить показатель');
+    addBtn.type = 'button';
+    addBtn.addEventListener('click', function () {
+      block.items.push({ icon: '', number: '', dynamic: '', label: '' });
+      render();
+    });
+    wrap.appendChild(addBtn);
 
     return wrap;
   }

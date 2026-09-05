@@ -203,45 +203,7 @@ p { margin: 0 0 1em; color: var(--text); }
   padding: 10px 20px;
 }
 
-/* ---------- Hero ---------- */
-.hero {
-  background: var(--bg);
-  padding: 56px 0 40px;
-}
-.hero-inner {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 48px;
-  align-items: center;
-}
-.hero-eyebrow {
-  display: inline-block;
-  background: var(--blue-light);
-  color: var(--navy);
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: .03em;
-  margin-bottom: 16px;
-}
-.hero-lead { font-size: 1.1rem; color: var(--text-muted); max-width: 46ch; }
-.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 24px; }
-.hero-media {
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  background: var(--blue-light);
-  aspect-ratio: 4/3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.hero-media img { width: 100%; height: 100%; object-fit: cover; }
-
-/* Карточка со статистикой сразу под hero (без наложения — оно ломалось
-   при переносе текста на разных экранах, поэтому карточка в обычном потоке). */
-.stats-strip-wrap { margin-top: 40px; }
+/* ---------- Статистика (блок конструктора "stats") ---------- */
 .stats-strip {
   background: #fff;
   border-radius: var(--radius);
@@ -284,8 +246,19 @@ p { margin: 0 0 1em; color: var(--text); }
   margin-bottom: 8px;
 }
 
-.page-content { max-width: 76ch; }
+/* Текстовые блоки держим в удобной для чтения ширине и по центру,
+   а визуальные блоки (галереи, карточки, баннеры, статистика) —
+   на всю ширину страницы, как в обычных конструкторах сайтов. */
 .page-content :is(h2, h3) { margin-top: 1.4em; }
+.page-content > .block-heading,
+.page-content > .block-paragraph,
+.page-content > .block-quote,
+.page-content > .block-list,
+.page-content > .block-button {
+  max-width: 76ch;
+  margin-left: auto;
+  margin-right: auto;
+}
 
 /* ---------- Блоки конструктора страниц (вывод на публичных страницах) ---------- */
 .block-heading { margin-top: 1.2em; }
@@ -329,6 +302,20 @@ p { margin: 0 0 1em; color: var(--text); }
 .block-cover-inner h2 { color: inherit; margin-bottom: 10px; }
 .block-cover-inner p { color: inherit; opacity: 0.92; margin-bottom: 20px; }
 
+.block-gallery { display: grid; gap: 16px; margin: 1.4em 0; grid-template-columns: repeat(3, 1fr); }
+.block-gallery-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.block-gallery-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.block-gallery figure { margin: 0; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); background: var(--blue-light); }
+.block-gallery img { width: 100%; height: 200px; object-fit: cover; }
+.block-gallery figcaption { padding: 10px 14px; font-size: 0.9rem; color: var(--text-muted); background: #fff; }
+
+@media (max-width: 768px) {
+  .block-gallery-cols-3, .block-gallery-cols-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .block-gallery { grid-template-columns: 1fr !important; }
+}
+
 /* ---------- Предпросмотр несохранённой страницы из админки ---------- */
 .preview-banner {
   background: #fff3d6;
@@ -369,149 +356,6 @@ p { margin: 0 0 1em; color: var(--text); }
   color: var(--navy);
   flex-shrink: 0;
 }
-
-.event-card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 36px;
-  display: grid;
-  grid-template-columns: 1.3fr 0.8fr;
-  gap: 32px;
-  align-items: center;
-  box-shadow: var(--shadow-sm);
-}
-.event-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 6px; }
-.event-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--blue-light);
-  color: var(--navy);
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 8px 14px;
-  border-radius: 999px;
-}
-
-.event-poster {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
-  color: #fff;
-  border-radius: var(--radius);
-  padding: 28px;
-  min-height: 300px;
-}
-.event-poster::before {
-  content: "";
-  position: absolute;
-  inset: -20% -40% auto auto;
-  width: 220px;
-  height: 220px;
-  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0 10px, transparent 10px 20px);
-  border-radius: 50%;
-  pointer-events: none;
-}
-.event-poster-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.14);
-  font-weight: 700;
-  margin-bottom: 18px;
-  position: relative;
-}
-.event-poster h3 { color: #fff; font-size: 1.5rem; line-height: 1.2; margin-bottom: 8px; position: relative; }
-.event-poster p { color: #cfe0f7; margin-bottom: 20px; position: relative; }
-.event-poster-schedule {
-  background: #fff;
-  color: var(--navy-dark);
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  margin-bottom: 18px;
-  position: relative;
-}
-.event-poster-contact { position: relative; display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: #cfe0f7; }
-
-.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.gallery figure { margin: 0; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); background: var(--blue-light); }
-.gallery img { width: 100%; height: 220px; object-fit: cover; }
-.gallery figcaption { padding: 10px 14px; font-size: 0.9rem; color: var(--text-muted); background: #fff; }
-
-/* ---------- Карусель "Жизнь лицея" на главной ---------- */
-.section-header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
-.section-header-row h2 { margin-bottom: 0; }
-.carousel-nav { display: flex; gap: 8px; }
-.carousel-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: #fff;
-  color: var(--navy);
-  font-size: 1.1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.carousel-btn:hover { background: var(--blue-light); }
-.gallery-scroll {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-}
-.gallery-scroll::-webkit-scrollbar { display: none; }
-.gallery-scroll figure {
-  margin: 0;
-  flex: 0 0 250px;
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: #fff;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-}
-.gallery-scroll img { width: 100%; height: 170px; object-fit: cover; }
-.gallery-scroll figcaption { padding: 14px 16px; }
-.gallery-scroll figcaption strong { display: block; color: var(--navy-dark); margin-bottom: 4px; }
-.gallery-scroll figcaption span { color: var(--text-muted); font-size: 0.85rem; }
-
-/* ---------- Наши результаты ---------- */
-.results-strip {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 24px;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px;
-  box-shadow: var(--shadow-sm);
-}
-.result-item { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
-.result-badge {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.05rem;
-}
-.result-name { font-weight: 700; color: var(--navy-dark); font-size: 0.9rem; }
 
 .person-card {
   background: #fff;
@@ -562,78 +406,6 @@ p { margin: 0 0 1em; color: var(--text); }
 .winner-item .subject { color: var(--blue-accent); font-weight: 600; font-size: 0.9rem; }
 .winner-item .quote { color: var(--text-muted); font-style: italic; flex-basis: 100%; }
 
-
-.telegram-block {
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
-  color: #fff;
-  border-radius: var(--radius);
-  padding: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-  flex-wrap: wrap;
-}
-.telegram-block h2, .telegram-block p { color: #fff; }
-.telegram-block p { color: #cfe0f7; }
-.telegram-visual { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
-
-.phone-mock {
-  width: 190px;
-  background: #fff;
-  color: var(--text);
-  border-radius: 18px;
-  padding: 14px;
-  box-shadow: var(--shadow);
-}
-.phone-mock-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.phone-mock-logo {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--navy);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.8rem;
-  flex-shrink: 0;
-}
-.phone-mock-header strong { display: block; font-size: 0.8rem; color: var(--navy-dark); }
-.phone-mock-header span { font-size: 0.72rem; color: var(--text-muted); }
-.phone-mock-msg {
-  background: var(--bg-soft);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-}
-.phone-mock-btn {
-  background: var(--blue-accent);
-  color: #fff;
-  text-align: center;
-  border-radius: 999px;
-  padding: 8px;
-  font-weight: 700;
-  font-size: 0.72rem;
-  letter-spacing: .03em;
-}
-
-.telegram-block .qr {
-  width: 110px;
-  height: 110px;
-  background: #fff;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  text-align: center;
-  flex-shrink: 0;
-}
 
 /* ---------- Forms ---------- */
 form label { display: block; margin-bottom: 16px; font-weight: 600; font-size: 0.92rem; color: var(--navy-dark); }
@@ -686,17 +458,11 @@ form input:focus, form textarea:focus, form select:focus {
    Адаптивность: планшеты (~576–992px) и мобильные (до ~576px)
    ========================================================================= */
 @media (max-width: 992px) {
-  .hero-inner { grid-template-columns: 1fr; }
-  .hero-media { max-width: 480px; margin: 0 auto; }
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
-  .event-card { grid-template-columns: 1fr; }
-  .event-poster { min-height: auto; }
-  .gallery { grid-template-columns: repeat(2, 1fr); }
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .stats-strip-item { flex: 1 1 50%; border-right: none; border-bottom: 1px solid var(--border); }
   .stats-strip-item:nth-child(odd) { border-right: 1px solid var(--border); }
-  .results-strip { justify-content: center; }
 }
 
 /* Меню лицея — 9 пунктов, поэтому переход на бургер происходит раньше
@@ -727,19 +493,9 @@ form input:focus, form textarea:focus, form select:focus {
   .admin-link { margin-top: 8px; text-align: center; }
 }
 
-@media (max-width: 768px) {
-  .telegram-visual { flex-direction: column; }
-}
-
 @media (max-width: 576px) {
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .gallery { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr; text-align: left; }
   .section { padding: 40px 0; }
-  .hero { padding: 36px 0 28px; }
   .stats-strip-item { flex: 1 1 50%; }
-  .event-card { padding: 24px; }
-  .event-poster::before { display: none; }
-  .telegram-block { flex-direction: column; text-align: center; padding: 32px 24px; }
-  .gallery-scroll figure { flex-basis: 220px; }
 }

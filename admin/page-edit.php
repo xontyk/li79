@@ -76,6 +76,9 @@ require __DIR__ . '/../includes/admin_header.php';
           <button type="button" class="btn btn-sm btn-outline" data-add-block="paragraph">📝 Текст</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="image">🖼 Фото</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="cover">🌄 Баннер с фоном</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="gallery">🖼️ Галерея фото</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="cards">🗂 Карточки</button>
+          <button type="button" class="btn btn-sm btn-outline" data-add-block="stats">📊 Статистика</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="button">🔘 Кнопка</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="quote">❝ Цитата</button>
           <button type="button" class="btn btn-sm btn-outline" data-add-block="list">📋 Список</button>

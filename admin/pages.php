@@ -63,7 +63,10 @@ $pages = $pdo->query('SELECT * FROM pages ORDER BY nav_order ASC, id ASC')->fetc
 $pageTitle = 'Страницы сайта — ' . SITE_NAME;
 require __DIR__ . '/../includes/admin_header.php';
 ?>
-<h1>Страницы сайта</h1>
+<div class="admin-toolbar">
+  <h1 style="margin:0;">Страницы сайта</h1>
+  <a href="migrate.php" class="btn btn-sm btn-outline">Перенести старое содержимое в блоки →</a>
+</div>
 
 <div class="table-wrap" style="margin-bottom:28px;">
   <table class="admin-table">

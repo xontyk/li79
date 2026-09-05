@@ -184,6 +184,16 @@
 .block-list-item-row { display: flex; gap: 8px; align-items: center; }
 .block-list-item-row input { margin-top: 0 !important; }
 
+.block-repeat-items { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+.block-repeat-item {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.block-repeat-item .block-image-dropzone .photo-dropzone-preview { min-height: 90px; }
+.block-repeat-item .block-image-dropzone .photo-dropzone-preview img { max-height: 140px; }
+
 .block-add {
   border-top: 1px dashed var(--border);
   padding-top: 16px;
